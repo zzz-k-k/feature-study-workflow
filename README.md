@@ -77,7 +77,7 @@ If a project already has a documentation convention, the skill should follow the
 
 ### License
 
-Add your preferred license before publishing this repository.
+MIT License.
 
 ---
 
@@ -158,4 +158,4 @@ docs/feature-study/<feature-slug>/
 
 ### 许可证
 
-发布到 GitHub 前，请补充你希望使用的开源许可证。
+MIT License。
