@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Study Workflow"
+  short_description: "Large-feature docs, progress, and learning."
+  default_prompt: "Use $feature-study-workflow to guide this large feature change with design docs, progress tracking, implementation notes, and learning capture."
