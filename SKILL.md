@@ -11,6 +11,7 @@ Use this skill to guide a large feature change as a learning-centered, document-
 
 - Do not jump straight into coding.
 - Proceed by phases. Stop after each major document and wait for the user to confirm or say "下一步".
+- During `stepwise-implementation`, execute exactly one implementation task at a time. After each task, update docs and stop for user confirmation before starting the next task.
 - Maintain written artifacts in the project, preferably under `docs/feature-study/<feature-slug>/`.
 - If the project has an existing docs convention, follow it instead and keep the same artifact names.
 - Keep all generated docs in Chinese unless the user asks otherwise.
@@ -188,6 +189,14 @@ After each task, state:
 - Validation method
 - Whether docs need updates
 
+After completing exactly one implementation task:
+
+- Update `progress.md` with the completed task, current status, and next task.
+- Set `progress.md` status to `waiting-for-user` unless the implementation is complete.
+- Summarize the task result to the user.
+- Stop and wait for the user to explicitly confirm continuing, for example by saying "下一步".
+- Do not begin the next implementation task in the same assistant turn, even if it seems small, adjacent, or already planned.
+
 Maintain `bug-repair-log.md` when bugs appear:
 
 ```markdown
@@ -304,4 +313,3 @@ Create `reusable-patterns.md`:
 ```
 
 Focus on reusable insight rather than a verbose transcript. Mark `progress.md` as complete.
-
