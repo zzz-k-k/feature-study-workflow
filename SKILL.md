@@ -1,40 +1,49 @@
 ---
 name: feature-study-workflow
-description: Use for large feature changes where the user wants a document-driven coding workflow with learning capture: requirements clarification, user-flow docs, architecture and implementation design, stepwise coding, bug and repair-path tracking, progress/status queries, final design-drift analysis, user-filled retrospective, AI critique, and reusable pattern capture. Trigger when the user asks to develop a larger feature systematically, summarize architecture for a feature, maintain implementation learning docs, query current feature progress, or run a learning/retrospective workflow around a code change.
+description: Use for large feature development where the user wants to learn by proposing the requirements, user flow, and overall construction roadmap before AI review; then build one observable flow at a time, let AI audit real pain points after each completed flow, evolve architecture from evidence, track progress, analyze design drift, run a user-filled retrospective, and capture reusable patterns. Trigger for systematic feature construction, architecture learning, implementation progress queries, code-understanding workflows, and learning-centered retrospectives.
 ---
 
 # Feature Study Workflow
 
-Use this skill to guide a large feature change as a learning-centered, document-driven workflow. Do not use it for tiny fixes unless the user explicitly asks.
+Guide a large feature as a user-led construction and learning workflow. Let the user own the initial reasoning and construction order. Act as reviewer, coach, implementer, and post-flow auditor.
 
-## Operating Rules
+## Core Contract
 
-- Do not jump straight into coding.
-- Proceed by phases. Stop after each major document and wait for the user to confirm or say "下一步".
-- During `stepwise-implementation`, execute exactly one implementation task at a time. After each task, update docs and stop for user confirmation before starting the next task.
-- Maintain written artifacts in the project, preferably under `docs/feature-study/<feature-slug>/`.
-- If the project has an existing docs convention, follow it instead and keep the same artifact names.
-- Keep all generated docs in Chinese unless the user asks otherwise.
-- During implementation, update docs when reality changes:
-  - Bugs and repair paths go to `bug-repair-log.md`.
-  - Requirement changes go to `requirements-user-flow.md`.
-  - Architecture or implementation design changes go to `architecture-implementation.md`.
-- When the user asks "当前进度", "进度", "status", "到哪一步了", or similar, run the Progress Query behavior.
+- Ask the user to propose the overall construction roadmap before AI designs the implementation.
+- Review the roadmap for requirement coverage, dependency order, observable outcomes, and stage size. Do not inject precise pain points, class names, design patterns, or a complete architecture at this stage.
+- Build one observable user or system flow at a time. Do not organize implementation primarily by technical layers such as “all Models” or “all Repositories.”
+- Let architecture evolve from working flows and real constraints. Treat future architecture as provisional.
+- After each flow works, proactively inspect the actual behavior and code for pain points the user may not yet recognize. Present one pain point at a time and let the user propose the solution.
+- Review user reasoning in this order: correctness, requirement completeness, simplicity, clarity and naming, then justified extensibility.
+- Do not replace a workable user idea with a hidden preselected answer. State concrete consequences, ask one focused question, and escalate hints gradually.
+- Introduce abstractions only when required by the current flow, an observed problem, or the next accepted roadmap step. Avoid speculative extensibility.
+- Track implementation completion and user understanding separately.
+- Record decisions and changed reasoning compactly; never store chat transcripts.
+- Keep generated project documents in Chinese unless the user requests another language.
+
+## Pause Rules
+
+- Stop after each major document review and wait for user confirmation.
+- Stop whenever the user must propose or revise requirements, a user flow, the roadmap, a construction plan, or a pain-point solution.
+- After implementing and validating one flow, stop before starting another flow.
+- During post-flow audit, present and resolve or defer exactly one pain point at a time, then stop.
+- Never interpret a routine “下一步” as permission to skip unfinished review, audit, or understanding checks.
 
 ## Artifact Set
 
-For each feature, maintain these files:
+Maintain artifacts under `docs/feature-study/<feature-slug>/`, or follow an existing project docs convention:
 
-- `progress.md`: current phase, completed docs, open questions, blockers, next action.
-- `requirements-clarification.md`: goal, restated requirement, boundaries, open questions, assumptions, risks.
-- `requirements-user-flow.md`: user flow, main scenarios, edge cases, acceptance criteria, requirement change log.
-- `architecture-implementation.md`: code entry points, architecture understanding, call chain, module responsibilities, data flow, task split, change log.
-- `bug-repair-log.md`: bug symptoms, reproduction, cause, fix path, validation, and design-doc lesson.
-- `implementation-summary.md`: final implementation and design-drift analysis after coding is complete.
-- `learning-retrospective.md`: user-filled learning review plus AI critique.
-- `reusable-patterns.md`: reusable patterns, snippets, checklists, and future prompts.
+- `progress.md`: current phase, active roadmap step, cycle state, blockers, and next action.
+- `requirements-clarification.md`: user requirement, AI clarification review, confirmed scope, assumptions, and risks.
+- `requirements-user-flow.md`: user-authored flows, AI review, edge cases, acceptance criteria, and changes.
+- `architecture-implementation.md`: user roadmap, requirement coverage matrix, accepted construction order, current actual architecture, and evolution log.
+- `construction-learning-log.md`: per-flow user plan, AI review, accepted plan, code mapping, validation, post-flow pain audits, and understanding check.
+- `bug-repair-log.md`: reproduced bugs, cause, repair, validation, and design lesson.
+- `implementation-summary.md`: final behavior, actual architecture, roadmap drift, and lessons.
+- `learning-retrospective.md`: user-filled explanation followed by AI critique.
+- `reusable-patterns.md`: reusable patterns, checks, snippets, and future prompts.
 
-Create the folder and `progress.md` at the start of the workflow. If the user is only asking for progress, do not create new docs; inspect existing docs first.
+For an existing workflow that has `problem-solving-log.md`, preserve it. When resuming that workflow, migrate only meaningful reasoning and decisions into `construction-learning-log.md`; do not duplicate conversational history.
 
 ## Progress Model
 
@@ -42,14 +51,16 @@ Use these phases:
 
 1. `requirements-clarification`
 2. `requirements-user-flow`
-3. `architecture-implementation-design`
-4. `stepwise-implementation`
-5. `implementation-summary-and-drift-analysis`
-6. `learning-retrospective-and-critique`
-7. `reusable-pattern-capture`
-8. `complete`
+3. `construction-roadmap-review`
+4. `single-flow-construction`
+5. `post-flow-pain-audit`
+6. `roadmap-repeat-and-completion-check`
+7. `implementation-summary-and-drift-analysis`
+8. `learning-retrospective-and-critique`
+9. `reusable-pattern-capture`
+10. `complete`
 
-`progress.md` must include:
+Include these fields in `progress.md`:
 
 ```markdown
 # Feature Study Progress
@@ -57,8 +68,12 @@ Use these phases:
 - Feature:
 - Current phase:
 - Status: not-started | in-progress | waiting-for-user | blocked | complete
-- Last completed phase:
-- Current artifact:
+- Current roadmap step:
+- Current observable outcome:
+- Current cycle stage: awaiting-user-plan | plan-under-review | approved-for-implementation | implementing | validating | post-flow-audit | pain-under-review | awaiting-understanding | mastered
+- Implementation status: not-started | in-progress | complete
+- Understanding status: not-started | in-progress | mastered
+- Completed roadmap steps:
 - Completed artifacts:
 - Open questions:
 - Blockers:
@@ -66,250 +81,283 @@ Use these phases:
 - Last updated:
 ```
 
-Update `progress.md` whenever a phase starts, pauses for confirmation, completes, or becomes blocked.
+Update progress whenever a phase or cycle stage starts, pauses, completes, or becomes blocked.
 
 ## Progress Query
 
-When the user asks for current progress:
+When the user asks for progress or status:
 
-1. Locate the active feature-study folder. Prefer the most recently modified `docs/feature-study/*/progress.md`. If there are multiple plausible active folders, list them and ask which one.
-2. Read `progress.md` and briefly inspect the current artifact if needed.
-3. Respond with:
-   - Current phase
-   - Completed artifacts
-   - Waiting on user or not
-   - Open questions/blockers
-   - Next recommended action
-4. Do not continue the workflow unless the user explicitly asks to continue.
+1. Locate the most recently modified active `docs/feature-study/*/progress.md`.
+2. Read it and the current artifact when needed.
+3. Report the current phase, active roadmap step, completed steps, waiting party, open questions or blockers, and next action.
+4. Do not continue implementation unless the user explicitly asks.
 
-If no progress file exists, say that no active feature-study workflow was found and offer to start one.
+If multiple active workflows are plausible, list them and ask which one. If none exists, say so and offer to start one.
 
-## Workflow
+## Phase 1: Requirements Clarification
 
-### Phase 1: Requirements Clarification
-
-Start here for a new large feature. Create `requirements-clarification.md` with:
+Create `progress.md` and `requirements-clarification.md`. Preserve the user’s own wording before normalization:
 
 ```markdown
 # 需求澄清文档
 
-## 功能目标
+## 用户原始需求
 
-## 当前需求复述
+## AI 澄清评审
+- 已明确部分：
+- 歧义与缺口：
+- 边界与风险：
 
-## 需求边界
+## 用户补充与修正
 
-## 不明确的问题
+## 最终确认需求
+
+## 明确不做的内容
 
 ## 暂定假设
-
-## 风险点
 ```
 
-Ask at most 5 key questions. If reasonable assumptions can unblock progress, list them clearly. Update `progress.md` to `waiting-for-user` and stop.
+Ask at most five high-impact questions. Discuss goals and boundaries, not implementation architecture. Set progress to `waiting-for-user` and stop for confirmation.
 
-### Phase 2: Requirements And User Flow
+## Phase 2: Requirements And User Flow
 
-After confirmation, create `requirements-user-flow.md`:
+Ask the user to describe the main flow first using `入口 -> 操作 -> 系统反馈 -> 最终结果`. If the user already supplied it, preserve and review it.
+
+Create `requirements-user-flow.md`:
 
 ```markdown
 # 需求与用户流程文档
 
-## 用户视角流程
-按“入口 -> 操作 -> 系统反馈 -> 最终结果”描述。
+## 用户提出的流程
 
-## 主要场景
+## AI 流程评审
+- 已覆盖需求：
+- 遗漏场景：
+- 异常与边界：
+- 需要用户修正：
 
-## 边界场景
-包括异常、空状态、权限不足、数据缺失、网络失败等。
+## 用户修正后的流程
 
-## 需求验收标准
-写成可检查条目。
+## 验收标准
 
 ## 后续需求变化记录
-### 变化 1
-- 变化内容：
-- 变化原因：
-- 影响范围：
-- 是否已同步到实现：
 ```
 
-Update `progress.md` and stop for confirmation.
+Review behavior, feedback, missing scenarios, permissions, empty states, data failure, and other relevant edges. Do not design code. Update progress and stop for confirmation.
 
-### Phase 3: Architecture And Implementation Design
+## Phase 3: User Construction Roadmap And AI Coverage Review
 
-Combine architecture reverse-engineering and implementation design in `architecture-implementation.md`:
+Inspect the existing project only to understand its baseline and constraints. Then ask the user to propose an overall construction roadmap that covers the confirmed requirements.
+
+Require the roadmap to describe high-level build order and an observable result for each step. Do not require exact files, class names, patterns, or precise pain points.
+
+Review the user roadmap only for:
+
+- Coverage: every acceptance criterion maps to at least one roadmap step.
+- Dependency order: prerequisites appear before dependent behavior.
+- Observability: each step ends in a runnable or inspectable result.
+- Scope: each step is small enough to build and verify independently.
+- Unknowns: unresolved choices are visible rather than silently assumed.
+
+Do not generate a replacement roadmap unless the user explicitly asks or remains blocked after graduated hints. Create or update `architecture-implementation.md`:
 
 ```markdown
-# 架构与实现设计文档
+# 架构与实现演进文档
 
-## 相关代码入口
+## 当前项目基础
 
-## 当前架构理解
+## 用户提出的整体构建流程
 
-## 调用链路
-用户操作 -> 前端组件 -> 状态/请求 -> 后端/API -> 数据层 -> 返回结果 -> UI 更新
+## AI 需求覆盖评审
 
-## 核心模块职责
+## 需求覆盖矩阵
+| 需求/验收标准 | 对应构建步骤 | 覆盖状态 |
+|---|---|---|
 
-## 数据流
+## 用户修正后的构建流程
 
-## 实现任务拆分
+## 已确认施工路线
 
-## 每个任务的修改点
+## 当前实际架构
+只记录已经存在并被验证的结构。
 
-## 方案选择
-包括简单方案、更可维护方案、推荐方案和取舍。
-
-## 设计风险
-
-## 架构变化记录
-### 变化 1
-- 原设计：
-- 实际发现：
-- 调整原因：
-- 影响文件：
-- 是否已同步到实现：
+## 架构演进记录
 ```
 
-Update `progress.md` and stop for confirmation.
+Ask the user to revise or confirm. Set progress to `waiting-for-user` and stop. Do not start implementation in the same turn.
 
-### Phase 4: Stepwise Implementation
+## Phase 4: Build One Observable Flow
 
-Implement one task at a time. Before each task, state:
+Select exactly one accepted roadmap step. Ask the user to explain how they would build it from the current project state. Allow plain process language; do not require code terminology.
 
-- What will change
-- Why it changes
-- Which part of `architecture-implementation.md` it corresponds to
-
-After each task, state:
-
-- Files changed
-- Core logic
-- Validation method
-- Whether docs need updates
-
-After completing exactly one implementation task:
-
-- Update `progress.md` with the completed task, current status, and next task.
-- Set `progress.md` status to `waiting-for-user` unless the implementation is complete.
-- Summarize the task result to the user.
-- Stop and wait for the user to explicitly confirm continuing, for example by saying "下一步".
-- Do not begin the next implementation task in the same assistant turn, even if it seems small, adjacent, or already planned.
-
-Maintain `bug-repair-log.md` when bugs appear:
+Create a flow card in `construction-learning-log.md`:
 
 ```markdown
-# Bug 与修复路径文档
+## 构建流程 N：标题
 
-## Bug 记录
-
-### Bug 1：标题
-- 现象：
-- 触发步骤：
-- 影响范围：
-- 初步判断：
-- 根本原因：
-- 修复方案：
-- 修改文件：
-- 验证方式：
-- 是否暴露了前期设计问题：
-- 对应的设计文档位置：
-- 后续避免方式：
+- 对应需求：
+- 当前可观察目标：
+- 用户提出的构建步骤：
+- AI 评审：等待用户方案
+- 用户修正方案：
+- 规范化后的职责与命名：
+- 已确认实现方案：
+- 代码对应关系：
+- 验证结果：
+- 理解状态：not-started
 ```
 
-If requirements change, update `requirements-user-flow.md`. If architecture changes, update `architecture-implementation.md`. Keep `progress.md` current.
+Review the user plan in order:
 
-When the user says coding is complete or says "下一步" after implementation, move to Phase 5.
+1. Identify correct and useful reasoning.
+2. Identify missing steps or incorrect assumptions and state their concrete consequences.
+3. Ask one focused question or give the smallest useful hint.
+4. Let the user revise while progress is possible.
+5. After correctness and coverage are sufficient, improve responsibility boundaries, naming, readability, and only evidence-backed extensibility. Explain every normalization so the user can connect it to their idea.
 
-### Phase 5: Implementation Summary And Design-Drift Analysis
+When the plan is accepted, record it, set the cycle stage to `approved-for-implementation`, and stop for explicit implementation confirmation.
+
+### Implement The Accepted Flow
+
+Before editing code, state:
+
+- The observable result being implemented.
+- The accepted user construction steps.
+- The minimum files or responsibilities that must change and why.
+
+Implement only this flow. Do not add structures solely for later roadmap steps. If the implementation unexpectedly spans several unrelated responsibilities, stop and re-split the flow with the user.
+
+Validate the observable result and relevant regressions. Then record:
+
+- Files changed and core behavior.
+- A mapping from each accepted construction step to concrete code.
+- Validation evidence.
+- Any actual architecture change.
+
+Update `architecture-implementation.md` with only the architecture that now exists. Set progress to Phase 5 and stop before proposing the next roadmap step.
+
+## Phase 5: AI Post-Flow Pain Audit
+
+After a flow works, proactively inspect its actual code, behavior, validation results, and the next accepted roadmap dependency. Look for pain points the user may not yet recognize.
+
+Only propose a pain point when at least one condition holds:
+
+- Current behavior can be incorrect, unsafe, inconsistent, or lose data.
+- The pain is visible in the current code through duplication, mixed responsibilities, unclear state ownership, or fragile coupling.
+- The pain blocks or materially complicates the next accepted roadmap step.
+- A confirmed requirement or edge case is not actually satisfied.
+
+Do not propose pain based only on hypothetical future reuse. Classify each candidate:
+
+- `must-fix`: current correctness, safety, or requirement failure.
+- `next-step-needed`: required before the next accepted roadmap step.
+- `optional-later`: useful but not worth current complexity.
+
+Present exactly one highest-priority pain point. Describe the triggering scenario and consequence without naming the intended pattern or giving the solution. Ask the user to propose a response and stop.
+
+Record a pain card under the current flow:
+
+```markdown
+### 完成后痛点 N：标题
+
+- 分类：must-fix | next-step-needed | optional-later
+- 观察依据：
+- 触发场景与后果：
+- 用户初步方案：
+- AI 评审：
+- 用户修正方案：
+- 最终决定：解决 | 延后
+- 延后原因：
+- 对应修改与验证：
+```
+
+Review the user solution with the same graduated-hint rules. If the pain is accepted for resolution, confirm the smallest fix, stop for implementation approval, implement it, and rerun the completed flow’s acceptance checks. If deferred, record why and do not add code.
+
+Repeat Phase 5 one pain point per turn until no `must-fix` or `next-step-needed` pain remains. Optional items may stay deferred.
+
+### Understanding Check
+
+After the audit is complete, ask the user to explain:
+
+- What observable flow was built.
+- Their original construction reasoning and what changed.
+- How the runtime call or data flow maps to the code.
+- Why each new responsibility exists.
+- How one small requirement change would affect the design.
+
+Critique concisely. Mark understanding `mastered` only when the user connects requirement, construction flow, code, and change impact. Otherwise remain on the same flow and give one focused correction.
+
+## Phase 6: Update Roadmap And Repeat
+
+After a flow is implemented, audited, and mastered:
+
+1. Update the requirement coverage matrix and actual architecture.
+2. Record roadmap or architecture changes and why they occurred.
+3. Check whether all acceptance criteria are satisfied.
+4. If work remains, ask the user to select the next roadmap step and return to Phase 4.
+5. If all work is complete, ask the user to confirm the implementation phase is complete before Phase 7.
+
+Do not automatically select or implement the next flow.
+
+## Bug And Change Tracking
+
+When a bug appears, update `bug-repair-log.md` with symptom, reproduction, impact, cause, fix, validation, and the earlier decision that allowed it. Update requirements or architecture documents when reality changes.
+
+## Phase 7: Implementation Summary And Design Drift
 
 Create `implementation-summary.md`:
 
 ```markdown
-# 修改总结与设计偏差分析文档
+# 实现总结与设计偏差分析
 
-## 最终实现了什么
+## 最终满足的需求
 
-## 实际修改文件
+## 最终构建流程与实际架构
 
-## 编码过程中遇到的问题
-列出 bug、需求变化、架构变化。
+## 用户原始施工路线与实际路线对比
 
-## 问题原因分析
-对每个问题回答：
-- 这是 bug、需求变化，还是架构变化？
-- 它最早暴露在哪个阶段？
-- 它对应前面哪份文档中的哪一点设计不足？
-- 是需求理解不完整、用户流程没想清楚、架构判断错误，还是实现细节遗漏？
-- 如果重来一次，前面的文档应该如何改？
+## 每次架构变化由什么真实问题触发
 
-## 设计文档修正建议
+## 提前设计、遗漏与返工
 
-## 经验教训
+## 如果重来，施工顺序如何调整
+
+## 验证结果与剩余风险
 ```
 
-Update `progress.md` and stop before the retrospective.
+Update progress and stop before retrospective.
 
-### Phase 6: Learning Retrospective And AI Critique
+## Phase 8: Learning Retrospective And AI Critique
 
-Create `learning-retrospective.md` with a user-fillable section first:
+Create `learning-retrospective.md` and ask the user to fill it before AI comments:
 
 ```markdown
-# 学习复盘填写文档
+# 学习复盘
 
-## 1. 我理解的功能目标
+## 1. 我理解的需求和用户流程
 
-## 2. 我理解的用户流程
+## 2. 我最初设计的整体构建流程
 
-## 3. 我理解的架构链路
-用户操作 -> 前端 -> API/状态 -> 数据层 -> UI 更新
+## 3. 实际构建顺序发生了哪些变化
 
-## 4. 我理解的核心代码
+## 4. 我能解释的核心调用与数据流
 
-## 5. 本次最重要的 bug 或变化
+## 5. AI 提出的关键痛点及我的解决办法
 
-## 6. 如果下次做类似功能
+## 6. 哪些抽象是必要的，哪些曾经过早
 
-## 7. 我还没理解的地方
+## 7. 下次我会怎样从零开始
+
+## 8. 我仍不理解的地方
 
 ---
 
 # AI 点评
-等待用户填写后再补充。
+等待用户填写后补充。
 ```
 
-Ask the user to fill it. Do not fill it for them.
+After the user fills it, identify accurate reasoning, vague claims, remembered conclusions without causes, and three questions that test transfer. Append the critique and stop.
 
-After the user fills it, critique:
+## Phase 9: Reusable Pattern Capture
 
-- Which parts are accurate
-- Which parts are vague
-- Where the user remembers conclusions but not causes
-- Three follow-up questions that test real understanding
-
-Append the critique under `# AI 点评`, update `progress.md`, and stop before reusable capture.
-
-### Phase 7: Reusable Pattern Capture
-
-Create `reusable-patterns.md`:
-
-```markdown
-# 可复用沉淀记录
-
-## 功能模式名称
-
-## 适用场景
-
-## 通用实现步骤
-
-## 可复用代码块
-
-## 易错点
-
-## 设计前检查清单
-
-## 下次可直接发给 AI 的提示词
-```
-
-Focus on reusable insight rather than a verbose transcript. Mark `progress.md` as complete.
+Create `reusable-patterns.md` with the reusable construction sequence, justified abstractions, pain signals, checks, concise code patterns, and a future prompt. Avoid transcript-like history. Mark progress `complete`.
