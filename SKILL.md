@@ -1,6 +1,6 @@
 ---
 name: feature-study-workflow
-description: Use for large feature development where the user wants to learn by proposing the requirements, user flow, and overall construction roadmap before AI review; then build one observable flow at a time, let AI audit real pain points after each completed flow, evolve architecture from evidence, track progress, analyze design drift, run a user-filled retrospective, and capture reusable patterns. Trigger for systematic feature construction, architecture learning, implementation progress queries, code-understanding workflows, and learning-centered retrospectives.
+description: Use for large feature development where the user wants to learn by proposing requirements, user flow, and a high-level construction roadmap before AI review; then build one observable flow at a time with coaching adapted to the user's current technical knowledge, maintain a category-level global risk radar, audit evidence-based pain points after each completed flow, evolve architecture, track progress, analyze design drift, run a user-filled retrospective, and capture reusable patterns. Trigger for systematic feature construction, architecture learning, implementation progress queries, code-understanding workflows, and learning-centered retrospectives.
 ---
 
 # Feature Study Workflow
@@ -10,12 +10,14 @@ Guide a large feature as a user-led construction and learning workflow. Let the 
 ## Core Contract
 
 - Ask the user to propose the overall construction roadmap before AI designs the implementation.
-- Review the roadmap for requirement coverage, dependency order, observable outcomes, and stage size. Do not inject precise pain points, class names, design patterns, or a complete architecture at this stage.
+- Review the roadmap for requirement coverage, dependency order, and high-level observable outcomes. Allow coarse roadmap stages; decompose only the currently selected stage in Phase 4. Do not inject precise pain points, class names, design patterns, or a complete architecture at this stage.
+- Maintain a global risk radar of broad review categories so missing categories can be discovered without designing concrete problems early.
 - Build one observable user or system flow at a time. Do not organize implementation primarily by technical layers such as “all Models” or “all Repositories.”
 - Let architecture evolve from working flows and real constraints. Treat future architecture as provisional.
 - After each flow works, proactively inspect the actual behavior and code for pain points the user may not yet recognize. Present one pain point at a time and let the user propose the solution.
 - Review user reasoning in this order: correctness, requirement completeness, simplicity, clarity and naming, then justified extensibility.
 - Do not replace a workable user idea with a hidden preselected answer. State concrete consequences, ask one focused question, and escalate hints gradually.
+- Do not require the user to know framework functions, class names, or implementation patterns before learning them. Adapt the planning branch to the user's current knowledge and explain every AI-supplied technical decision.
 - Introduce abstractions only when required by the current flow, an observed problem, or the next accepted roadmap step. Avoid speculative extensibility.
 - Track implementation completion and user understanding separately.
 - Record decisions and changed reasoning compactly; never store chat transcripts.
@@ -37,6 +39,7 @@ Maintain artifacts under `docs/feature-study/<feature-slug>/`, or follow an exis
 - `requirements-clarification.md`: user requirement, AI clarification review, confirmed scope, assumptions, and risks.
 - `requirements-user-flow.md`: user-authored flows, AI review, edge cases, acceptance criteria, and changes.
 - `architecture-implementation.md`: user roadmap, requirement coverage matrix, accepted construction order, current actual architecture, and evolution log.
+- `risk-radar.md`: broad risk categories, relevance, roadmap touchpoints, and review history; never a list of speculative solutions.
 - `construction-learning-log.md`: per-flow user plan, AI review, accepted plan, code mapping, validation, post-flow pain audits, and understanding check.
 - `bug-repair-log.md`: reproduced bugs, cause, repair, validation, and design lesson.
 - `implementation-summary.md`: final behavior, actual architecture, roadmap drift, and lessons.
@@ -68,12 +71,20 @@ Include these fields in `progress.md`:
 - Feature:
 - Current phase:
 - Status: not-started | in-progress | waiting-for-user | blocked | complete
-- Current roadmap step:
+- Current roadmap stage: <index>/<total>: <title>
+- Current roadmap stage status: not-started | in-progress | complete
+- Current observable flow: <stage-index>.<flow-index>: <title>
+- Current observable flow status: planning | approved | implementing | validating | auditing | awaiting-understanding | complete
 - Current observable outcome:
 - Current cycle stage: awaiting-user-plan | plan-under-review | approved-for-implementation | implementing | validating | post-flow-audit | pain-under-review | awaiting-understanding | mastered
 - Implementation status: not-started | in-progress | complete
+- Pain audit status: not-started | in-progress | complete
 - Understanding status: not-started | in-progress | mastered
-- Completed roadmap steps:
+- Risk radar status: not-started | initialized | reviewed-for-current-flow
+- Implemented observable flows:
+- Fully completed observable flows:
+- Completed roadmap stages:
+- Remaining work in current roadmap stage:
 - Completed artifacts:
 - Open questions:
 - Blockers:
@@ -81,7 +92,9 @@ Include these fields in `progress.md`:
 - Last updated:
 ```
 
-Update progress whenever a phase or cycle stage starts, pauses, completes, or becomes blocked.
+An implemented flow has working, validated code. A fully completed flow additionally has no unresolved required pain audit and has passed the understanding check. A roadmap stage is complete only when all accepted outcomes in that stage are covered by fully completed flows.
+
+Update progress whenever a phase or cycle stage starts, pauses, completes, or becomes blocked. Keep roadmap numbering stable after acceptance; when a stage is decomposed progressively, number its flows `<stage>.<flow>` in construction order.
 
 ## Progress Query
 
@@ -89,7 +102,7 @@ When the user asks for progress or status:
 
 1. Locate the most recently modified active `docs/feature-study/*/progress.md`.
 2. Read it and the current artifact when needed.
-3. Report the current phase, active roadmap step, completed steps, waiting party, open questions or blockers, and next action.
+3. Report the workflow phase separately from project construction progress: current roadmap stage `<n>/<total>`, current observable flow `<n.m>`, whether its implementation, pain audit, and understanding are complete, implemented versus fully completed flows, completed roadmap stages, waiting party, blockers, and next action.
 4. Do not continue implementation unless the user explicitly asks.
 
 If multiple active workflows are plausible, list them and ask which one. If none exists, say so and offer to start one.
@@ -156,7 +169,7 @@ Review the user roadmap only for:
 - Coverage: every acceptance criterion maps to at least one roadmap step.
 - Dependency order: prerequisites appear before dependent behavior.
 - Observability: each step ends in a runnable or inspectable result.
-- Scope: each step is small enough to build and verify independently.
+- Granularity: coarse stages are acceptable when each has a high-level result; defer internal flow order until that stage begins.
 - Unknowns: unresolved choices are visible rather than silently assumed.
 
 Do not generate a replacement roadmap unless the user explicitly asks or remains blocked after graduated hints. Create or update `architecture-implementation.md`:
@@ -186,9 +199,48 @@ Do not generate a replacement roadmap unless the user explicitly asks or remains
 
 Ask the user to revise or confirm. Set progress to `waiting-for-user` and stop. Do not start implementation in the same turn.
 
+### Initialize The Global Risk Radar
+
+After the high-level roadmap is accepted, create `risk-radar.md`. Keep it category-level:
+
+```markdown
+# 全局风险雷达
+
+## 使用规则
+- 只记录风险类别、相关阶段和复查状态，不提前生成具体痛点或解决方案。
+- 具体痛点必须来自已实现行为、实际代码、验证结果或下一条已确认流程。
+- 每条流程完成后复查；发现新类别时允许补充。
+
+## 风险类别
+| 类别 | 与项目相关性 | 可能涉及的高层阶段 | 当前证据 | 上次复查 |
+|---|---|---|---|---|
+| 功能需求覆盖 | relevant | | 尚无具体证据 | |
+| 状态与数据一致性 | unknown | | 尚无具体证据 | |
+| 失败与恢复 | unknown | | 尚无具体证据 | |
+| 安全与权限 | unknown | | 尚无具体证据 | |
+| 性能与规模 | unknown | | 尚无具体证据 | |
+| UI、可用性与无障碍 | unknown | | 尚无具体证据 | |
+| 测试与可观察性 | relevant | | 尚无具体证据 | |
+| 维护与合理扩展 | unknown | | 尚无具体证据 | |
+
+## 新增类别记录
+```
+
+Mark relevance as `relevant`, `later`, `not-applicable`, or `unknown`. A category marked relevant does not authorize architecture or code. Link categories to high-level stages and stop before Phase 4.
+
 ## Phase 4: Build One Observable Flow
 
-Select exactly one accepted roadmap step. Ask the user to explain how they would build it from the current project state. Allow plain process language; do not require code terminology.
+Select exactly one observable flow inside the current accepted roadmap stage. Ask the user to explain how they would build it from the current project state. Allow plain process language; do not require code terminology or decomposition of later flows.
+
+### Adapt To The User's Current Technical Knowledge
+
+Choose exactly one branch:
+
+- `user-technical-plan`: When the user can propose functions, responsibilities, data flow, or framework APIs, review their plan for correctness and improve it without replacing sound reasoning.
+- `user-behavior-plan`: When the user can describe the desired behavior but not the technical construction, translate their behavior steps into the smallest technical plan, explain the mapping and reasons, then stop for confirmation before coding.
+- `user-needs-scaffold`: When the user cannot yet propose a construction path, start with one guiding question or small hint. Escalate to a structural example. If the user still cannot proceed or explicitly asks AI to implement, provide one minimal plan, explain what concept each part teaches, and stop for confirmation before coding.
+
+Never treat missing framework vocabulary as missing reasoning. Preserve the user's behavior intent in the flow card even when AI supplies the technical plan.
 
 Create a flow card in `construction-learning-log.md`:
 
@@ -234,11 +286,15 @@ Validate the observable result and relevant regressions. Then record:
 - Validation evidence.
 - Any actual architecture change.
 
+After implementation, explain the code in the same order as the user's behavior plan. Distinguish user-derived decisions from AI-supplied technical details, and explain why each framework function or responsibility exists.
+
 Update `architecture-implementation.md` with only the architecture that now exists. Set progress to Phase 5 and stop before proposing the next roadmap step.
 
 ## Phase 5: AI Post-Flow Pain Audit
 
 After a flow works, proactively inspect its actual code, behavior, validation results, and the next accepted roadmap dependency. Look for pain points the user may not yet recognize.
+
+Read `risk-radar.md` and scan every category marked `relevant` or `unknown` for this flow. Record `no current evidence` when nothing concrete exists. Add a new category when the current flow reveals a class of risk absent from the radar.
 
 Only propose a pain point when at least one condition holds:
 
@@ -275,6 +331,8 @@ Review the user solution with the same graduated-hint rules. If the pain is acce
 
 Repeat Phase 5 one pain point per turn until no `must-fix` or `next-step-needed` pain remains. Optional items may stay deferred.
 
+After the audit, update each reviewed radar category with the flow name, evidence status, and review date. Keep concrete pain details in `construction-learning-log.md`, not in the radar.
+
 ### Understanding Check
 
 After the audit is complete, ask the user to explain:
@@ -292,10 +350,11 @@ Critique concisely. Mark understanding `mastered` only when the user connects re
 After a flow is implemented, audited, and mastered:
 
 1. Update the requirement coverage matrix and actual architecture.
-2. Record roadmap or architecture changes and why they occurred.
-3. Check whether all acceptance criteria are satisfied.
-4. If work remains, ask the user to select the next roadmap step and return to Phase 4.
-5. If all work is complete, ask the user to confirm the implementation phase is complete before Phase 7.
+2. Update the risk radar review history and newly discovered categories.
+3. Record roadmap or architecture changes and why they occurred.
+4. Check whether all acceptance criteria are satisfied.
+5. If work remains, ask the user to select the next roadmap stage or flow and return to Phase 4.
+6. If all work is complete, ask the user to confirm the implementation phase is complete before Phase 7.
 
 Do not automatically select or implement the next flow.
 
