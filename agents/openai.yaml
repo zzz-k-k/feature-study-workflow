@@ -1,4 +1,0 @@
-interface:
-  display_name: "Feature Study Workflow"
-  short_description: "Adaptive feature coaching with a global risk radar."
-  default_prompt: "Use $feature-study-workflow to review my roadmap, adapt technical guidance to what I can currently explain, maintain a global risk radar, and build one observable flow at a time."

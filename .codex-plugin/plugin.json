@@ -1,0 +1,26 @@
+{
+  "name": "feature-study-workflow",
+  "version": "0.2.0",
+  "description": "Two learning-centered workflows for guided feature construction and verified study of existing codebases.",
+  "author": {
+    "name": "zzz-k-k"
+  },
+  "repository": "https://github.com/zzz-k-k/feature-study-workflow",
+  "license": "MIT",
+  "keywords": [
+    "learning",
+    "feature-development",
+    "codebase-study",
+    "code-understanding"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Feature & Codebase Study Workflows",
+    "shortDescription": "Learn by building features or reconstructing existing codebases.",
+    "longDescription": "Two independent Codex skills: one guides user-led feature construction from requirements to retrospective; the other maps and teaches an existing codebase through verified runtime flows and an explicitly inferred pedagogical reconstruction order.",
+    "developerName": "zzz-k-k",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": "Help me choose between guided feature construction and verified study of an existing codebase."
+  }
+}
