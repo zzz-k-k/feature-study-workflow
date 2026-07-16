@@ -36,11 +36,13 @@ Stop and wait:
 - when the user must propose or revise a construction plan;
 - before implementing an accepted plan;
 - after one flow is implemented and validated;
-- after presenting one post-flow pain point;
+- after presenting one unresolved post-flow pain point that needs user reasoning, approval, or action;
 - before starting the next flow;
 - before the user-filled retrospective.
 
 A status request reports state only. It does not authorize implementation.
+
+Do not spend a turn only acknowledging that the user completed the previous step. When the user explicitly reports a check passed, a pain point resolved, or an approved action completed, record it and immediately advance to the next required audit, understanding check, or planning boundary in the same response. Stop only when the next step again requires user input or action.
 
 ## Project Structure Rules
 
@@ -183,7 +185,7 @@ Inspect the completed flow, its validation, the relevant radar categories, and t
 
 Classify it as `must-fix`, `next-step-needed`, or `optional-later`. Present exactly one highest-priority problem by scenario and consequence without naming a predetermined solution. Ask the user to propose a response and stop.
 
-If accepted, confirm the smallest fix, request implementation approval, implement, and rerun the flow checks. If deferred, record why. Continue one pain per turn until no required pain remains.
+If accepted, confirm the smallest fix, request implementation approval, implement, and rerun the flow checks. If deferred, record why. Keep only one unresolved pain active at a time. Once the user confirms that pain is resolved or deferred, record the result and immediately present the next required pain; if none remains, proceed directly to the understanding check.
 
 Then ask the user to explain the behavior, changed reasoning, runtime/data flow, responsibility boundaries, and one change-impact example. Mark understanding mastered only when requirements, construction, code, and impact are connected.
 
